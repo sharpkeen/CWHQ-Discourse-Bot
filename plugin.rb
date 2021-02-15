@@ -38,33 +38,23 @@ courses = [
     {"id" => 60, "short" => "h32"},
     {"id" => 61, "short" => "h33"},
     {"id" => 62, "short" => "h34"},
-    {"id" => 11, "short" => "nil"},
-    {"id" => 57, "short" => "nil"},
-    {"id" => 38, "short" => "nil"}
+    {"id" => 11, "short" => nil, "full" => "`https://scratch.mit.edu/projects/00000000`"},
+    {"id" => 57, "short" => nil, "full" => "`https://scratch.mit.edu/projects/00000000`"}
 ]
-
-def help_category(id, courses)
-    courses.each do |i|
-        if i["id"] == id then
-            return true
-        end
-    end
-    return false
-end
 
 after_initialize do
 
     def get_link(id, username, courses)
-        if id == 11 or id == 57 then
-            return `https://scratch.mit.edu/projects/00000000`
-        else
-            courses.each do |i|
-                if i["id"] == id then
+        courses.each do |i|
+            if i["id"] == id then
+                if !i["short"].nil? then
                     return "`https://" + username + ".codewizardshq.com/" + i["short"] + "/project`"
+                else
+                    return i["full"]    
                 end
             end
-            return "`https://" + username + ".codewizardshq.com/s00/project` or `https://scratch.mit.edu/projects/00000000`"
         end
+        return false
     end
 
     bot = User.find_by(id: -1)
@@ -72,21 +62,20 @@ after_initialize do
     # Missing Link
     DiscourseEvent.on(:topic_created) do |topic|
         
-        link = topic.user.username + ".codewizardshq.com"
-
-        if help_category(topic.category_id, courses)
+        link = get_link(topic.category_id, topic.user.username, courses)
+        if link then
             includesReq = false
             
             newTopic = Post.find_by(topic_id: topic.id)
             topicRaw = newTopic.raw
-            
-            if topicRaw.downcase.include? link or topicRaw.downcase.include? "scratch.mit.edu" then
+            lookFor = topic.user.username + ".codewizardshq.com"
+
+            if topicRaw.downcase.include? lookFor or topicRaw.downcase.include? "scratch.mit.edu" then
                 includesReq = true
             end
 
             if includesReq == false then
 
-                link = get_link(topic.category_id, topic.user.username, courses)
                 text = "Hello @" + topic.user.username + ", it appears that you did not provide a link to your project. In order to recieve the best help, please edit your topic to contain a link to your project. This may look like " + link + "."
                 post = PostCreator.create(bot,
                             skip_validations: true,
