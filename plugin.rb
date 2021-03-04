@@ -60,17 +60,22 @@ after_initialize do
         
         link = get_link(topic.category_id, topic.user.username, courses)
         if link then
-            includesReq = false
+            includesReq = "no link"
             
             newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
             topicRaw = newTopic.raw
             lookFor = topic.user.username + ".codewizardshq.com"
 
-            if topicRaw.downcase.include? lookFor or topicRaw.downcase.include? "scratch.mit.edu" then
-                includesReq = true
-            end
+            if topicRaw.downcase.include? lookFor then
+                includesReq = "has link"
+               if topicRaw.downcase.include? lookfor and "editor" then
+                includesReq = "editor link"
+            else
+                 if topicRaw.downcase.include? "scratch.mit.edu" then
+                     includesReq = "has link"
+                    
 
-            if includesReq == false then
+            if includesReq == "no link" then
 
                 text = "Hello @" + topic.user.username + ", it appears that you did not provide a link to your project. In order to recieve the best help, please edit your topic to contain a link to your project. This may look like " + link + "."
                 post = PostCreator.create(Discourse.system_user,
@@ -78,10 +83,13 @@ after_initialize do
                             topic_id: topic.id,
                             raw: text 
                         )
+                
                 unless post.nil?
                     post.save(validate: false)
                 end
+                
             end
+            
         end
     end
 
