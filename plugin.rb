@@ -8,7 +8,7 @@ require 'date'
 
 courses = Hash.new
 courses = {
-    36 => "e13_real_prog_00",
+    4 => "e13_real_prog_00",
     37 => "e14_minecraft_00",
     45 => "e21_prog_concepts_00",
     31 => "e22_wd1_00",
@@ -53,6 +53,17 @@ def get_link(id, username, hash)
     return false
 end
 
+def create_post(topicId, text)
+    post = PostCreator.create(
+        Discourse.system_user,
+        skip_validations: true,
+        topic_id: topicId,
+        raw: text)
+    unless post.nil?
+        post.save(validate: false)
+    end
+end
+
 after_initialize do
    
     # Missing Link
@@ -60,50 +71,22 @@ after_initialize do
         
         link = get_link(topic.category_id, topic.user.username, courses)
         if link then
-            includesReq = "no link"
         
             newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
             topicRaw = newTopic.raw
             lookFor = topic.user.username + ".codewizardshq.com"
 
+            if topicRaw.downcase.include?(lookFor + "/edit") then
+                includesReq = "editor link"
+                text = "Hello @" + topic.user.username + ", it appears that the link that you provided goes to the editor, and not your project. Please open your project and use the link from that tab. This may look like " + link + "."
+                create_post(topic.id, text)
+            elsif !topicRaw.downcase.include?(lookFor) && !topicRaw.downcase.include?("cwhq-apps.com") then
+                text = "Hello @" + topic.user.username + ", it appears that you did not provide a link to your project. In order to recieve the best help, please edit your topic to contain a link to your project. This may look like " + link + "."
+                create_post(topic.id, text)
+            end
+
         end
-
-	if topicRaw.downcase.include? lookFor then
-            includesReq = "has link"
-	
-        elsif topicRaw.downcase.include? "#/editor" then
-            includesReq = "editor link"
-        
-        elsif topicRaw.downcase.include? "scratch.mit.edu" then
-            includesReq = "has link"
-        end
-
-            
-
-
-	if includesReq == "no link" then
-
-        	text = "Hello @" + topic.user.username + ", it appears that you did not provide a link to your project. In order to recieve the best help, please edit your topic to contain a link to your project. This may look like " + link + "."
-       		post = PostCreator.create(Discourse.system_user,
-        		skip_validations: true,
-        		topic_id: topic.id,
-        		raw: text 
-                        )
-	elsif includesReq == "editor link" then
-                	
-		text = "Hi @" + topic.user.username + "! The link that you used goes to the editor, and not the project that you need help with. Please open your project and use the link from that tab. This may look like " + link + "."
-        	post = PostCreator.create(Discourse.system_user,
-        		skip_validations: true,
-        		topic_id: topic.id,
-        		raw: text 
-                unless post.nil?
-                	post.save(validate: false)
-	end
     end
-	
-    
-
-
 
     DiscourseEvent.on(:post_created) do |post|
         
@@ -122,4 +105,5 @@ after_initialize do
             end
         end
     end
+        
 end
