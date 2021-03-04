@@ -8,7 +8,7 @@ require 'date'
 
 courses = Hash.new
 courses = {
-    4 => "e13_real_prog_00",
+    36 => "e13_real_prog_00",
     37 => "e14_minecraft_00",
     45 => "e21_prog_concepts_00",
     31 => "e22_wd1_00",
