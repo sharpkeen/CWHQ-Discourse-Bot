@@ -88,22 +88,37 @@ after_initialize do
         end
     end
 
+
     DiscourseEvent.on(:post_created) do |post|
+      
+
+
         
         if post.post_number != 1 && post.user_id != -1 then
 
             # Close Topic Command        
             raw = post.raw
+            oPost = Post.find_by(topic_id: post.topic_id, post_number: 1)
+
+            def closeTopic()
+              topic = Topic.find_by(id: post.topic_id)               
+              topic.update_status("closed", true, Discourse.system_user, {message: raw[14..raw.length]})
+            end
+
             if raw[0, 13].downcase == "@system close" then
-                if post.user.primary_group_id != nil then
+                
                     group = Group.find_by(id: post.user.primary_group_id)
-                    if group.name == "Helpers" then
-                        topic = Topic.find_by(id: post.topic_id)
-                        topic.update_status("closed", true, Discourse.system_user, {message: raw[14..raw.length]})
+                    topic = post.topic
+                    id = topic.category_id
+                    if group = nil and !hash[id].nil? then
+                      return "not get help"
+                    end
+                    if group.name = "Helpers" then
+                      closeTopic()
+                    elsif oPost.user.name = post.user.name and not !hash[id].nil? then
+                      closeTopic()
                     end
                 end
             end
         end
     end
-        
-end
