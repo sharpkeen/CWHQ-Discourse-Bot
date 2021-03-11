@@ -107,7 +107,7 @@ after_initialize do
                 group = Group.find_by(id: post.user.primary_group_id)
                 topic = post.topic
                 id = topic.category_id
-                if (!post.user.primary_group_id.nil? && group.name = "Helpers") || (oPost.user.name == post.user.name && !hash[id].nil?) then
+                if (!post.user.primary_group_id.nil? && group.name = "Helpers") || (oPost.user.name == post.user.name && !courses[id].nil?) then
                     closeTopic(post.topic_id, raw[14..raw.length])
                 end  
             end
