@@ -1,6 +1,6 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.3
+# version: 1.4
 # author: Qursch
 # url: https://github.com/Qursch/CWHQ-Discourse-Bot
 
@@ -69,18 +69,25 @@ def closeTopic(id, message)
     topic.update_status("closed", true, Discourse.system_user, {message: message})
 end
 
+def check_title(title):
+    if (title.downcase.include?("codewizardshq.com")) || (title.downcase.include?("scratch.mit.edu")) then
+        return true
+    else
+        return false
+    end
+end
+
+
 after_initialize do
    
     # Missing Link
     DiscourseEvent.on(:topic_created) do |topic|
         
+        newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
+        topicRaw = newTopic.raw
+        lookFor = topic.user.username + ".codewizardshq.com"
         link = get_link(topic.category_id, topic.user.username, courses)
         if link then
-        
-            newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
-            topicRaw = newTopic.raw
-            lookFor = topic.user.username + ".codewizardshq.com"
-
             if topicRaw.downcase.include?(lookFor + "/edit") then
                 includesReq = "editor link"
                 text = "Hello @" + topic.user.username + ", it appears that the link that you provided goes to the editor, and not your project. Please open your project and use the link from that tab. This may look like " + link + "."
@@ -91,7 +98,18 @@ after_initialize do
             end
 
         end
-    end
+
+        topic_title = topic.title
+        
+        if check_title(topic_title) then
+            text = "Hello @" + topic.user.username + ". Please change the name of this topic to something that clearly explains what the topic is about. This will help other forum users know what you want to show or get help with. You can edit your topic title by pressing the pencil icon next to the current one."
+            text2 = " You can move the link to the text that you wrote by pressing the pencil icon below it and copying it there"
+            if topicRaw.downcase.include?(lookFor) || topicRaw.downcase.include?("scratch.mit.edu") then
+                create_post(topic.id, text)
+            else
+                create_post(topic.id, (text + text2))
+            end
+        end
 
 
     DiscourseEvent.on(:post_created) do |post|
