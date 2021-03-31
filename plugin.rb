@@ -102,12 +102,11 @@ after_initialize do
         topic_title = topic.title
         
         if check_title(topic_title) then
-            text = "Hello @" + topic.user.username + ". Please change the name of this topic to something that clearly explains what the topic is about. This will help other forum users know what you want to show or get help with. You can edit your topic title by pressing the pencil icon next to the current one."
-            text2 = " You can move the link to the text that you wrote by pressing the pencil icon below it and copying it there"
+            text = "Hello @" + topic.user.username + ", it appears you provided a link in your topic's title. Please change the title of this topic to something that clearly explains what the topic is about. This will help other forum users know what you want to show or get help with. You can edit your topic title by pressing the pencil icon next to the current one. Be sure to put the link in the main body of your post."
             if topicRaw.downcase.include?(lookFor) || topicRaw.downcase.include?("scratch.mit.edu") then
                 create_post(topic.id, text)
             else
-                create_post(topic.id, (text + text2))
+                create_post(topic.id, text)
             end
         end
     end
