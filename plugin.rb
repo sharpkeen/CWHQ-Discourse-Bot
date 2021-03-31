@@ -69,8 +69,8 @@ def closeTopic(id, message)
     topic.update_status("closed", true, Discourse.system_user, {message: message})
 end
 
-def check_title(title):
-    if (title.downcase.include?("codewizardshq.com")) || (title.downcase.include?("scratch.mit.edu")) then
+def check_title(title)
+    if title.downcase.include?("codewizardshq.com") || title.downcase.include?("scratch.mit.edu") then
         return true
     else
         return false
@@ -110,7 +110,7 @@ after_initialize do
                 create_post(topic.id, (text + text2))
             end
         end
-
+    end
 
     DiscourseEvent.on(:post_created) do |post|
         
