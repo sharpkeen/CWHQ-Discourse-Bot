@@ -1,6 +1,6 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.4
+# version: 1.5
 # author: Qursch
 # url: https://github.com/Qursch/CWHQ-Discourse-Bot
 
@@ -38,8 +38,8 @@ courses = {
     60 => "h32",
     61 => "h33",
     62 => "h34",
-    11 => nil,
-    57 => nil
+    11 => false,
+    57 => false
 }
 
 def get_link(id, username, hash)
@@ -76,8 +76,11 @@ def check_title(title)
         return false
     end
 end
-
-
+def check_all_link_types(text):
+    if (text.include?("codewizardshq.com") && !text.include?("/edit")) || (text.include?("cwhq-apps") || text.include?("scratch.mit.edu")) then
+        return true
+    end
+end
 after_initialize do
    
     # Missing Link
@@ -102,12 +105,11 @@ after_initialize do
         topic_title = topic.title
         
         if check_title(topic_title) then
-            text = "Hello @" + topic.user.username + ". Please change the name of this topic to something that clearly explains what the topic is about. This will help other forum users know what you want to show or get help with. You can edit your topic title by pressing the pencil icon next to the current one."
-            text2 = " You can move the link to the text that you wrote by pressing the pencil icon below it and copying it there"
+            text = "Hello @" + topic.user.username + ", it appears you provided a link in your topic's title. Please change the title of this topic to something that clearly explains what the topic is about. This will help other forum users know what you want to show or get help with. You can edit your topic title by pressing the pencil icon next to the current one. Be sure to put the link in the main body of your post."
             if topicRaw.downcase.include?(lookFor) || topicRaw.downcase.include?("scratch.mit.edu") then
                 create_post(topic.id, text)
             else
-                create_post(topic.id, (text + text2))
+                create_post(topic.id, text)
             end
         end
     end
@@ -119,15 +121,38 @@ after_initialize do
             # Close Topic Command        
             raw = post.raw
             oPost = Post.find_by(topic_id: post.topic_id, post_number: 1)
-
-            if raw[0, 13].downcase == "@system close" then
-                
+            name = post.user.name.split(" ")
+            if raw[0, 7].downcase == "@system" then
+                if raw[9, 13] == "close" then
                 group = Group.find_by(id: post.user.primary_group_id)
                 topic = post.topic
                 id = topic.category_id
-                if (!post.user.primary_group_id.nil? && group.name = "Helpers") || (oPost.user.name == post.user.name and not hash[id].nil?) then
-                    closeTopic(post.topic_id, raw[14..raw.length])
-                end  
+                    if (!post.user.primary_group_id.nil? && group.name = "Helpers") || (oPost.user.name == post.user.name && !courses[id].nil?) then
+                        text = name[1] + " closed this because: " + raw[14..raw.length]
+                        if oPost.user.name == post.user.name then
+                            text = "Topic creator closed this because: " + raw[14..raw.length]
+                        closeTopic(post.topic_id, text)
+                        end
+                    end
+                elsif raw[9, 15] == "remove" then
+                    if !post.user.primary_group_id.nil? && group.name = "Helpers" then
+                        posts_in_topic = Post.find_by(topic: topic)
+                        posts_in_topic.each do |i|
+                            if i.user.username == "system" then
+                                i.destroy
+                            end
+                        end
+                    end
+                end
+            post.destroy
+            end
+        end
+    end
+    DiscourseEvent.on(:post_edited) do |post|
+        if post.post_number == 1 && check_all_link_types(post.raw) then
+            first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
+            if first_reply.user.username == "system" then
+                first_reply.destroy
             end
         end
     end
