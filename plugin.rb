@@ -126,6 +126,7 @@ after_initialize do
                                 text = "Closed by topic creator: " + raw[14..raw.length]
                             end
                             closeTopic(post.topic_id, text)
+                            post.destroy
                         end
                     elsif raw[8, 6] == "remove" then
                         if group.name == "Helpers" then
@@ -137,9 +138,9 @@ after_initialize do
                             if !second_reply.nil? && second_reply.user.username == "system" then
                                 second_reply.destroy
                             end
+                            post.destroy
                         end
                     end
-                    post.destroy
                 end
             end
         end
