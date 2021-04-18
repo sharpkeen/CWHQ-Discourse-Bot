@@ -1,8 +1,8 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.4
-# author: Qursch
-# url: https://github.com/Qursch/CWHQ-Discourse-Bot
+# version: 1.5
+# authors: Qursch, bronze0202
+# url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
 
 require 'date'
 
@@ -76,8 +76,11 @@ def check_title(title)
         return false
     end
 end
-
-
+def check_all_link_types(text)
+    if (text.include?("codewizardshq.com") && !text.include?("/edit")) || (text.include?("cwhq-apps") || text.include?("scratch.mit.edu")) then
+        return true
+    end
+end
 after_initialize do
    
     # Missing Link
@@ -89,7 +92,6 @@ after_initialize do
         link = get_link(topic.category_id, topic.user.username, courses)
         if link then
             if topicRaw.downcase.include?(lookFor + "/edit") then
-                includesReq = "editor link"
                 text = "Hello @" + topic.user.username + ", it appears that the link that you provided goes to the editor, and not your project. Please open your project and use the link from that tab. This may look like " + link + "."
                 create_post(topic.id, text)
             elsif !topicRaw.downcase.include?(lookFor) && !topicRaw.downcase.include?("cwhq-apps.com") then
@@ -114,19 +116,48 @@ after_initialize do
     DiscourseEvent.on(:post_created) do |post|
         
         if post.post_number != 1 && post.user_id != -1 then
-
-            # Close Topic Command        
+        
             raw = post.raw
             oPost = Post.find_by(topic_id: post.topic_id, post_number: 1)
+            if post.user.primary_group_id.nil? then 
+                return 
+            end
+            group = Group.find_by(id: post.user.primary_group_id)
+            if raw[0, 7].downcase == "@system" then
+                if raw[8, 5] == "close" then
+                    if (group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
+                        text = "Closed by @" + post.user.username + ": " + raw[14..raw.length]
+                        if oPost.user.username == post.user.username then
+                            text = "Closed by topic creator: " + raw[14..raw.length]
+                        end
+                        closeTopic(post.topic_id, text)
+                    end
+                elsif raw[8, 6] == "remove" then
+                    if group.name == "Helpers" then
+                        first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
+                        second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
+                        if !first_reply.nil? && first_reply.user.username == "system" then
+                            first_reply.destroy
+                        end
+                        if !second_reply.nil? && second_reply.user.username == "system" then
+                            second_reply.destroy
+                        end
+                    end
+                end
+                post.destroy
+            end
+        end
+    end
 
-            if raw[0, 13].downcase == "@system close" then
-                
-                group = Group.find_by(id: post.user.primary_group_id)
-                topic = post.topic
-                id = topic.category_id
-                if (!post.user.primary_group_id.nil? && group.name = "Helpers") || (oPost.user.name == post.user.name && !courses[id].nil?) then
-                    closeTopic(post.topic_id, raw[14..raw.length])
-                end  
+    DiscourseEvent.on(:post_edited) do |post|
+        if post.post_number == 1 && check_all_link_types(post.raw) then
+            first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
+            second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
+            if !first_reply.nil? && first_reply.user.username == "system" then
+                first_reply.destroy
+            end
+            if !second_reply.nil? && second_reply.user.username == "system" then
+                second_reply.destroy
             end
         end
     end
