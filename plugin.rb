@@ -116,30 +116,28 @@ after_initialize do
         if post.post_number != 1 && post.user_id != -1 then
             raw = post.raw
             oPost = Post.find_by(topic_id: post.topic_id, post_number: 1)
-            if !post.user.primary_group_id.nil? then 
-                group = Group.find_by(id: post.user.primary_group_id)
-                if raw[0, 7].downcase == "@system" then
-                    if raw[8, 5] == "close" then
-                        if (group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
-                            text = "Closed by @" + post.user.username + ": " + raw[14..raw.length]
-                            if oPost.user.username == post.user.username then
-                                text = "Closed by topic creator: " + raw[14..raw.length]
-                            end
-                            closeTopic(post.topic_id, text)
-                            post.destroy
+            group = Group.find_by(id: post.user.primary_group_id)
+            if raw[0, 7].downcase == "@system" then
+                if raw[8, 5] == "close" then
+                    if (!post.user.primary_group_id.nil? && group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
+                        text = "Closed by @" + post.user.username + ": " + raw[14..raw.length]
+                        if oPost.user.username == post.user.username then
+                            text = "Closed by topic creator: " + raw[14..raw.length]
                         end
-                    elsif raw[8, 6] == "remove" then
-                        if group.name == "Helpers" then
-                            first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
-                            second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
-                            if !first_reply.nil? && first_reply.user.username == "system" then
-                                first_reply.destroy
-                            end
-                            if !second_reply.nil? && second_reply.user.username == "system" then
-                                second_reply.destroy
-                            end
-                            post.destroy
+                        closeTopic(post.topic_id, text)
+                        post.destroy
+                    end
+                elsif raw[8, 6] == "remove" then
+                    if (!post.user.primary_group_id.nil? && group.name == "Helpers") then
+                        first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
+                        second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
+                        if !first_reply.nil? && first_reply.user.username == "system" then
+                            first_reply.destroy
                         end
+                        if !second_reply.nil? && second_reply.user.username == "system" then
+                            second_reply.destroy
+                        end
+                        post.destroy
                     end
                 end
             end
