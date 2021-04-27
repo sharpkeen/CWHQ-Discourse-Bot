@@ -1,9 +1,3 @@
-# name: CWHQ-Discourse-Bot
-# about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.5
-# authors: Qursch, bronze0202
-# url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
-
 require 'date'
 
 courses = Hash.new
@@ -138,11 +132,24 @@ after_initialize do
                             second_reply.destroy
                         end
                         post.destroy
-                    end
-                end
+                      end
+                elsif raw[8, 5] == "hello" then
+                  text = "Hello @" + topic.user.username + "! I am @system. I'm not a real person, and simply here to help human users make the forum a great place. If you need help say '@system help'. To see my documentation, click here: https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742"
+                  create_post(post.TopicId, text)
+                elsif raw[8, 4] == help then
+                  text = "Hello @" + topic.user.username + ". Here are some resources to help you on the forum.
+                  Forum Videos: https://forum.codewizardshq.com/t/informational-videos/8662
+                  Rules Of CW Forum: https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43
+                  Create Good Questions And Awnsers: https://forum.codewizardshq.com/t/create-good-questions-and-answers/69
+                  Forum Guide: https://forum.codewizardshq.com/t/forum-new-user-guide/47
+                  Meet Forum Helpers: https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474/277 
+                  System documentation: https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742
+                  Understanding trust levels:
+                  https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/"
             end
-        end
-    end
+         end
+      end
+   end 
 
     DiscourseEvent.on(:post_edited) do |post|
         if post.post_number == 1 && check_all_link_types(post.raw) then
@@ -157,3 +164,4 @@ after_initialize do
         end
     end
 end
+
