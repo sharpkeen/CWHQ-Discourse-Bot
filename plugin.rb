@@ -1,7 +1,7 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.5
-# authors: Qursch, bronze0202
+# version: 1.6
+# authors: Qursch, bronze0202, linuxmasters
 # url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
 
 require 'date'
@@ -76,11 +76,14 @@ def check_title(title)
         return false
     end
 end
+
 def check_all_link_types(text)
     if (text.include?("codewizardshq.com") && !text.include?("/edit")) || (text.include?("cwhq-apps") || text.include?("scratch.mit.edu")) then
         return true
     end
 end
+
+
 after_initialize do
    
 
@@ -125,33 +128,30 @@ after_initialize do
                             text = "Closed by topic creator: " + raw[14..raw.length]
                         end
                         closeTopic(post.topic_id, text)
-                        post.destroy
+                        PostDestroyer.new(Discourse.system_user, post).destroy
                     end
                 elsif raw[8, 6] == "remove" then
                     if (!post.user.primary_group_id.nil? && group.name == "Helpers") then
                         first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
                         second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
                         if !first_reply.nil? && first_reply.user.username == "system" then
-                            first_reply.destroy
+                            PostDestroyer.new(Discourse.system_user, first_reply).destroy
                         end
                         if !second_reply.nil? && second_reply.user.username == "system" then
-                            second_reply.destroy
+                            PostDestroyer.new(Discourse.system_user, second_reply).destroy
                         end
-                        post.destroy
+                        PostDestroyer.new(Discourse.system_user, post).destroy
                       end
-                elsif raw[8, 5] == "hello" then
-                  text = "Hello @" + topic.user.username + "! I am @system. I'm not a real person, and simply here to help human users make the forum a great place. If you need help say '@system help'. To see my documentation, click here: https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742"
-                  create_post(post.TopicId, text)
-                elsif raw[8, 4] == help then
-                  text = "Hello @" + topic.user.username + ". Here are some resources to help you on the forum.
-                  Forum Videos: https://forum.codewizardshq.com/t/informational-videos/8662
-                  Rules Of CW Forum: https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43
-                  Create Good Questions And Awnsers: https://forum.codewizardshq.com/t/create-good-questions-and-answers/69
-                  Forum Guide: https://forum.codewizardshq.com/t/forum-new-user-guide/47
-                  Meet Forum Helpers: https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474/277 
-                  System documentation: https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742
-                  Understanding trust levels:
-                  https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/"
+                elsif raw[8, 4] == "help" then
+                  text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:
+                  [Forum Videos](https://forum.codewizardshq.com/t/informational-videos/8662)
+                  [Rules Of The Forum](https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43)
+                  [Create Good Questions And Awnsers](https://forum.codewizardshq.com/t/create-good-questions-and-answers/69)
+                  [Forum Guide](https://forum.codewizardshq.com/t/forum-new-user-guide/47)
+                  [Meet Forum Helpers](https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474)
+                  [System Documentation](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)
+                  [Understanding Trust Levels](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/)"
+                  create_post(post.topic_id, text)
             end
          end
       end
@@ -162,12 +162,12 @@ after_initialize do
             first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
             second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
             if !first_reply.nil? && first_reply.user.username == "system" then
-                first_reply.destroy
+                PostDestroyer.new(Discourse.system_user, first_reply).destroy
             end
             if !second_reply.nil? && second_reply.user.username == "system" then
-                second_reply.destroy
+                PostDestroyer.new(Discourse.system_user, second_reply).destroy
             end
         end
     end
 end
-
+            
