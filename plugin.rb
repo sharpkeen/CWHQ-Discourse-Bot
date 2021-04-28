@@ -1,3 +1,9 @@
+# name: CWHQ-Discourse-Bot
+# about: This plugin adds extra functionality to the @system user on a Discourse forum.
+# version: 1.5
+# authors: Qursch, bronze0202
+# url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
+
 require 'date'
 
 courses = Hash.new
