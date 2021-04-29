@@ -146,7 +146,7 @@ after_initialize do
                   text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:
                   [Forum Videos](https://forum.codewizardshq.com/t/informational-videos/8662)
                   [Rules Of The Forum](https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43)
-                  [Create Good Questions And Awnsers](https://forum.codewizardshq.com/t/create-good-questions-and-answers/69)
+                  [Create Good Questions And Answers](https://forum.codewizardshq.com/t/create-good-questions-and-answers/69)
                   [Forum Guide](https://forum.codewizardshq.com/t/forum-new-user-guide/47)
                   [Meet Forum Helpers](https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474)
                   [System Documentation](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)
