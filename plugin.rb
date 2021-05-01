@@ -1,7 +1,7 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.5
-# authors: Qursch, bronze0202
+# version: 1.7
+# authors: Qursch, bronze0202, linuxmasters
 # url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
 
 require 'date'
@@ -76,16 +76,18 @@ def check_title(title)
         return false
     end
 end
+
 def check_all_link_types(text)
     if (text.include?("codewizardshq.com") && !text.include?("/edit")) || (text.include?("cwhq-apps") || text.include?("scratch.mit.edu")) then
         return true
     end
 end
+
+
 after_initialize do
    
-    # Missing Link
-    DiscourseEvent.on(:topic_created) do |topic|
-        
+
+    DiscourseEvent.on(:topic_created) do |topic| 
         newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
         topicRaw = newTopic.raw
         lookFor = topic.user.username + ".codewizardshq.com"
@@ -114,50 +116,84 @@ after_initialize do
     end
 
     DiscourseEvent.on(:post_created) do |post|
-        
         if post.post_number != 1 && post.user_id != -1 then
-        
             raw = post.raw
             oPost = Post.find_by(topic_id: post.topic_id, post_number: 1)
-            if post.user.primary_group_id.nil? then 
-                return 
-            end
             group = Group.find_by(id: post.user.primary_group_id)
+            helpLinks = "
+            [Forum Videos](https://forum.codewizardshq.com/t/informational-videos/8662)
+            [Rules Of The Forum](https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43)
+            [Create Good Questions And Answers](https://forum.codewizardshq.com/t/create-good-questions-and-answers/69)
+            [Forum Guide](https://forum.codewizardshq.com/t/forum-new-user-guide/47)
+            [Meet Forum Helpers](https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474)
+            [System Documentation](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)
+            [Understanding Trust Levels](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/)"
             if raw[0, 7].downcase == "@system" then
                 if raw[8, 5] == "close" then
-                    if (group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
+                    if (!post.user.primary_group_id.nil? && group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
                         text = "Closed by @" + post.user.username + ": " + raw[14..raw.length]
                         if oPost.user.username == post.user.username then
                             text = "Closed by topic creator: " + raw[14..raw.length]
                         end
                         closeTopic(post.topic_id, text)
+                        PostDestroyer.new(Discourse.system_user, post).destroy
                     end
                 elsif raw[8, 6] == "remove" then
-                    if group.name == "Helpers" then
+                    if (!post.user.primary_group_id.nil? && group.name == "Helpers") then
                         first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
                         second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
                         if !first_reply.nil? && first_reply.user.username == "system" then
-                            first_reply.destroy
+                            PostDestroyer.new(Discourse.system_user, first_reply).destroy
                         end
                         if !second_reply.nil? && second_reply.user.username == "system" then
-                            second_reply.destroy
+                            PostDestroyer.new(Discourse.system_user, second_reply).destroy
                         end
-                    end
-                end
-                post.destroy
+                        PostDestroyer.new(Discourse.system_user, post).destroy
+                      end
+                elsif raw[8, 4] == "help" && raw[14] != "@" then
+                  text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:" + helpLinks
+                  
+                  create_post(post.topic_id, text)
+                elsif raw[8,4] == "help" && raw[1] == "@" then
+                    if post.user.trust_level >= 3 then
+
+                        for i in 1..raw.length
+
+                        if User.find_by(username: raw[15, (1+i)]) then
+
+
+                        helpUser = User.find_by(username: raw[15, (1+i)])
+                        helper = post.user
+                        title = "Help with the Code Wizards HQ forum"
+                        raw = "Hello @" + helpUser.username + ", someone thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
+                        post = PostCreator.create(
+                            Discourse.system_user,
+                            title: title,
+                            raw: raw,
+                            archetype: Archetype.private_message,
+                            target_usernames: helper,
+                            skip_validations: true
+                        )
+                        PostDestroyer.new(Discourse.system_user, post).destroy
+                        break
+                        end
+                
+                        end
+                    end 
             end
-        end
-    end
+         end
+      end
+   end 
 
     DiscourseEvent.on(:post_edited) do |post|
         if post.post_number == 1 && check_all_link_types(post.raw) then
             first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
             second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
             if !first_reply.nil? && first_reply.user.username == "system" then
-                first_reply.destroy
+                PostDestroyer.new(Discourse.system_user, first_reply).destroy
             end
             if !second_reply.nil? && second_reply.user.username == "system" then
-                second_reply.destroy
+                PostDestroyer.new(Discourse.system_user, second_reply).destroy
             end
         end
     end
