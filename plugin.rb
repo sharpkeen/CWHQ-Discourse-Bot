@@ -171,7 +171,7 @@ after_initialize do
                             title: title,
                             raw: raw,
                             archetype: Archetype.private_message,
-                            target_usernames: helper,
+                            target_usernames: helpUser.username,
                             skip_validations: true
                         )
                         PostDestroyer.new(Discourse.system_user, post).destroy
