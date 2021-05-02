@@ -1,6 +1,6 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.6
+# version: 1.7
 # authors: Qursch, bronze0202, linuxmasters
 # url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
 
@@ -120,6 +120,14 @@ after_initialize do
             raw = post.raw
             oPost = Post.find_by(topic_id: post.topic_id, post_number: 1)
             group = Group.find_by(id: post.user.primary_group_id)
+            helpLinks = "
+            [Forum Videos](https://forum.codewizardshq.com/t/informational-videos/8662)
+            [Rules Of The Forum](https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43)
+            [Create Good Questions And Answers](https://forum.codewizardshq.com/t/create-good-questions-and-answers/69)
+            [Forum Guide](https://forum.codewizardshq.com/t/forum-new-user-guide/47)
+            [Meet Forum Helpers](https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474)
+            [System Documentation](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)
+            [Understanding Trust Levels](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/)"
             if raw[0, 7].downcase == "@system" then
                 if raw[8, 5] == "close" then
                     if (!post.user.primary_group_id.nil? && group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
@@ -142,16 +150,31 @@ after_initialize do
                         end
                         PostDestroyer.new(Discourse.system_user, post).destroy
                       end
-                elsif raw[8, 4] == "help" then
-                  text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:
-                  [Forum Videos](https://forum.codewizardshq.com/t/informational-videos/8662)
-                  [Rules Of The Forum](https://forum.codewizardshq.com/t/rules-of-the-codewizardshq-community-forum/43)
-                  [Create Good Questions And Answers](https://forum.codewizardshq.com/t/create-good-questions-and-answers/69)
-                  [Forum Guide](https://forum.codewizardshq.com/t/forum-new-user-guide/47)
-                  [Meet Forum Helpers](https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474)
-                  [System Documentation](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)
-                  [Understanding Trust Levels](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/)"
+                elsif raw[8, 4] == "help" && raw[13] != "@" then
+                  text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:" + helpLinks
+                  
                   create_post(post.topic_id, text)
+                elsif raw[8,4] == "help" && raw[13] == "@" then
+                    if post.user.trust_level >= TrustLevel[3] then
+                        for i in 1..raw.length
+                            if !User.find_by(username: raw[14, (1+i)]).nil? then
+                                helpUser = User.find_by(username: raw[14, (1+i)])
+                                helper = post.user
+                                title = "Help with the Code Wizards HQ forum"
+                                raw = "Hello @" + helpUser.username + ", someone thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
+                                message = PostCreator.create!(
+                                    Discourse.system_user,
+                                    title: title,
+                                    raw: raw,
+                                    archetype: Archetype.private_message,
+                                    target_usernames: helpUser.username,
+                                    skip_validations: true
+                                )
+                                PostDestroyer.new(Discourse.system_user, post).destroy
+                                break
+                            end
+                        end
+                    end 
             end
          end
       end
@@ -170,4 +193,3 @@ after_initialize do
         end
     end
 end
-            
