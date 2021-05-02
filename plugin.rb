@@ -159,7 +159,7 @@ after_initialize do
 
                         for i in 1..raw.length
 
-                        if User.find_by(username: raw[15, (1+i)]) then
+                        if User.find_by(username: raw[15, (1+i)]) != nil then
 
 
                         helpUser = User.find_by(username: raw[15, (1+i)])
