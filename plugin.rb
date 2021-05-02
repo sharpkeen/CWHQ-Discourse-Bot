@@ -155,29 +155,24 @@ after_initialize do
                   
                   create_post(post.topic_id, text)
                 elsif raw[8,4] == "help" && raw[13] == "@" then
-                    if post.user.trust_level >= 3 then
-
+                    if post.user.trust_level >= TrustLevel[3] then
                         for i in 1..raw.length
-
-                        if User.find_by(username: raw[14, (1+i)]) != nil then
-
-
-                        helpUser = User.find_by(username: raw[14, (1+i)])
-                        helper = post.user
-                        title = "Help with the Code Wizards HQ forum"
-                        raw = "Hello @" + helpUser.username + ", someone thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
-                        post = PostCreator.create(
-                            Discourse.system_user,
-                            title: title,
-                            raw: raw,
-                            archetype: Archetype.private_message,
-                            target_usernames: helpUser.username,
-                            skip_validations: true
-                        )
-                        PostDestroyer.new(Discourse.system_user, post).destroy
-                        break
-                        end
-                
+                            if !User.find_by(username: raw[14, (1+i)]).nil? then
+                                helpUser = User.find_by(username: raw[14, (1+i)])
+                                helper = post.user
+                                title = "Help with the Code Wizards HQ forum"
+                                raw = "Hello @" + helpUser.username + ", someone thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
+                                message = PostCreator.create!(
+                                    Discourse.system_user,
+                                    title: title,
+                                    raw: raw,
+                                    archetype: Archetype.private_message,
+                                    target_usernames: helpUser.username,
+                                    skip_validations: true
+                                )
+                                PostDestroyer.new(Discourse.system_user, post).destroy
+                                break
+                            end
                         end
                     end 
             end
