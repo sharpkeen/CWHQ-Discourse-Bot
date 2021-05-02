@@ -150,19 +150,19 @@ after_initialize do
                         end
                         PostDestroyer.new(Discourse.system_user, post).destroy
                       end
-                elsif raw[8, 4] == "help" && raw[14] != "@" then
+                elsif raw[8, 4] == "help" && raw[13] != "@" then
                   text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:" + helpLinks
                   
                   create_post(post.topic_id, text)
-                elsif raw[8,4] == "help" && raw[1] == "@" then
+                elsif raw[8,4] == "help" && raw[13] == "@" then
                     if post.user.trust_level >= 3 then
 
                         for i in 1..raw.length
 
-                        if User.find_by(username: raw[15, (1+i)]) != nil then
+                        if User.find_by(username: raw[14, (1+i)]) != nil then
 
 
-                        helpUser = User.find_by(username: raw[15, (1+i)])
+                        helpUser = User.find_by(username: raw[14, (1+i)])
                         helper = post.user
                         title = "Help with the Code Wizards HQ forum"
                         raw = "Hello @" + helpUser.username + ", someone thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
