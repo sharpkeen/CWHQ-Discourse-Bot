@@ -161,7 +161,7 @@ after_initialize do
                                 helpUser = User.find_by(username: raw[14, (1+i)])
                                 helper = post.user
                                 title = "Help with the Code Wizards HQ forum"
-                                raw = "Hello @" + helpUser.username + ", someone thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
+                                raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
                                 message = PostCreator.create!(
                                     Discourse.system_user,
                                     title: title,
