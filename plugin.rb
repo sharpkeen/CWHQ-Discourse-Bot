@@ -127,7 +127,8 @@ after_initialize do
             [Forum Guide](https://forum.codewizardshq.com/t/forum-new-user-guide/47)
             [Meet Forum Helpers](https://forum.codewizardshq.com/t/meet-the-forum-helpers/5474)
             [System Documentation](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)
-            [Understanding Trust Levels](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/)"
+            [Understanding Trust Levels](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/)
+            [Forum Information Category](https://forum.codewizardshq.com/c/official/information/69)"
             if raw[0, 7].downcase == "@system" then
                 if raw[8, 5] == "close" then
                     if (!post.user.primary_group_id.nil? && group.name == "Helpers") || (oPost.user.username == post.user.username && !courses[post.topic.category_id].nil?) then
@@ -161,7 +162,8 @@ after_initialize do
                                 helpUser = User.find_by(username: raw[14, (1+i)])
                                 helper = post.user
                                 title = "Help with the Code Wizards HQ forum"
-                                raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks
+                                raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks +  "This message was sent using the [@system help command](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)."
+                                   
                                 message = PostCreator.create!(
                                     Discourse.system_user,
                                     title: title,
