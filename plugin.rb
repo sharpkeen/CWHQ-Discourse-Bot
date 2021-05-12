@@ -1,7 +1,7 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.7
-# authors: Qursch, bronze0202, linuxmasters
+# version: 1.7.2
+# authors: Qursch, bronze0202, linuxmasters, sep208
 # url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
 
 require 'date'
@@ -161,7 +161,7 @@ after_initialize do
                             if !User.find_by(username: raw[14, (1+i)]).nil? then
                                 helpUser = User.find_by(username: raw[14, (1+i)])
                                 helper = post.user
-                                title = "Help with the Code Wizards HQ forum"
+                                title = "Help with the CodeWizardsHQ Forum"
                                 raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks +  "<br> <br>This message was sent using the [@system help command](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)."
                                    
                                 message = PostCreator.create!(
