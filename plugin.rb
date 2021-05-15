@@ -1,6 +1,6 @@
 # name: CWHQ-Discourse-Bot
 # about: This plugin adds extra functionality to the @system user on a Discourse forum.
-# version: 1.7.2
+# version: 1.8.0
 # authors: Qursch, bronze0202, linuxmasters, sep208
 # url: https://github.com/codewizardshq/CWHQ-Discourse-Bot
 
@@ -83,7 +83,16 @@ def check_all_link_types(text)
     end
 end
 
-
+def send_pm(title, text, user)
+    message = PostCreator.create!(
+        Discourse.system_user,
+        title: title,
+        raw: text,
+        archetype: Archetype.private_message,
+        target_usernames: user,
+        skip_validations: true
+    )
+end
 after_initialize do
    
 
@@ -162,26 +171,27 @@ after_initialize do
                                 helpUser = User.find_by(username: raw[14, (1+i)])
                                 helper = post.user
                                 title = "Help with the CodeWizardsHQ Forum"
-                                raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks +  "<br> <br>This message was sent using the [@system help command](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)."
-                                   
-                                message = PostCreator.create!(
-                                    Discourse.system_user,
-                                    title: title,
-                                    raw: raw,
-                                    archetype: Archetype.private_message,
-                                    target_usernames: helpUser.username,
-                                    skip_validations: true
-                                )
+                                raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks +  "<br> <br>This message was sent using the [@system help command](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)." 
+                                send_pm(title, raw, helpUser.username)
                                 PostDestroyer.new(Discourse.system_user, post).destroy
                                 break
                             end
                         end
-                    end 
+                    end   
+                end
+            elsif post.user.username == oPost.user.username && !courses[post.topic.category_id].nil? then
+                phrases = ["homework help", "on my own", "thanks", "thank you", "figured it out", "it works", "it's working", "myself", "solved", "fixed"]
+                phrases.each do |i|
+                    if raw.downcase.include?(i) then
+                        text = "Hello @#{post.user.username}. Based on your last reply, it seems like the issue you needed help with has been solved. If you would like to close the topic, meaning there will be no more replies allowed, follow the instructions below. If your problem is not solved or you would like to leave the topic open, you may ignore this or submit feedback [here](https://forum.codewizardshq.com/t/bot-commands-and-pr-suggestions-for-system/9254).<br><br>To close your topic, navigate back to your topic (the easiest way to do this is to press the back button to take you the last page you were on). Then make a new reply, and in it type `@system close problem solved`. If you need to, you can replace `problem solved` with a diferent reason for closing. When you post your reply, the topic should close."
+                        title = "Do you want to close your get help topic?"
+                        send_pm(title, text, post.user.username)
+                        break
+                    end
+                end
             end
-         end
-      end
-   end 
-
+        end
+    end
     DiscourseEvent.on(:post_edited) do |post|
         if post.post_number == 1 && check_all_link_types(post.raw) then
             first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
