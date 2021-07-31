@@ -187,7 +187,7 @@ after_initialize do
                                 title = "Help with the CodeWizardsHQ Forum"
                                 raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks +  "<br> <br>This message was sent using the [@system help command](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)." 
                                 send_pm(title, raw, helpUser.username)
-                                log_command(`was sent private help by #{helper.username}`, "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
+                                log_command("sent private help to #{helpUser.username}", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                                 PostDestroyer.new(Discourse.system_user, post).destroy
                                 break
                             end
