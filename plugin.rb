@@ -84,8 +84,8 @@ def check_all_link_types(text)
 end
 
 def log_command(command, link, name)
-    log_topic_id = # Qursch please add topic id
-    text = `@#{name} #{command}:<br>#{link}`
+    log_topic_id = 11303
+    text = "@#{name} #{command}:<br>#{link}"
     create_post(log_topic_id, text)
 end
 
@@ -100,7 +100,6 @@ def send_pm(title, text, user)
     )
 end
 after_initialize do
-   
 
     DiscourseEvent.on(:topic_created) do |topic| 
         newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
@@ -111,11 +110,11 @@ after_initialize do
             if topicRaw.downcase.include?(lookFor + "/edit") then
                 text = "Hello @" + topic.user.username + ", it appears that the link that you provided goes to the editor, and not your project. Please open your project and use the link from that tab. This may look like " + link + "."
                 create_post(topic.id, text)
-                log_command("received an editor link message", `https://forum.codewizardshq.com/t/#{topic.id}`, topic.user.username)
+                log_command("received an editor link message", "https://forum.codewizardshq.com/t/#{topic.topic_id}", topic.user.username)
             elsif !topicRaw.downcase.include?(lookFor) && !topicRaw.downcase.include?("cwhq-apps.com") then
                 text = "Hello @" + topic.user.username + ", it appears that you did not provide a link to your project. In order to recieve the best help, please edit your topic to contain a link to your project. This may look like " + link + "."
                 create_post(topic.id, text)
-                log_command("received an missing link message", `https://forum.codewizardshq.com/t/#{topic.id}`, topic.user.username)
+                log_command("received an missing link message", "https://forum.codewizardshq.com/t/#{topic.topic_id}", topic.user.username)
             end
 
         end
@@ -126,10 +125,10 @@ after_initialize do
             text = "Hello @" + topic.user.username + ", it appears you provided a link in your topic's title. Please change the title of this topic to something that clearly explains what the topic is about. This will help other forum users know what you want to show or get help with. You can edit your topic title by pressing the pencil icon next to the current one. Be sure to put the link in the main body of your post."
             if topicRaw.downcase.include?(lookFor) || topicRaw.downcase.include?("scratch.mit.edu") then
                 create_post(topic.id, text)
-                log_command("received a link in topic title message", `https://forum.codewizardshq.com/t/#{topic.id}`, topic.user.username)
+                log_command("received a link in topic title message", "https://forum.codewizardshq.com/t/#{topic.topic_id}", topic.user.username)
             else
                 create_post(topic.id, text)
-                log_command("received a link in topic title message", `https://forum.codewizardshq.com/t/#{topic.id}`, topic.user.username)
+                log_command("received a link in topic title message",  "https://forum.codewizardshq.com/t/#{topic.topic_id}", topic.user.username)
             end
         end
     end
@@ -156,7 +155,7 @@ after_initialize do
                             text = "Closed by topic creator: " + raw[14..raw.length]
                         end
                         closeTopic(post.topic_id, text)
-                        log_command("closed a topic", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                        log_command("closed a topic", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                         PostDestroyer.new(Discourse.system_user, post).destroy
                     end
                 elsif raw[8, 6] == "remove" then
@@ -164,12 +163,12 @@ after_initialize do
                         first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
                         second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
                         if !first_reply.nil? && first_reply.user.username == "system" then
-                            log_command("removed an automated message", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                            log_command("removed an automated message", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                             PostDestroyer.new(Discourse.system_user, first_reply).destroy
                             
                         end
                         if !second_reply.nil? && second_reply.user.username == "system" then
-                            log_command("removed an automated message", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                            log_command("removed an automated message", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                             PostDestroyer.new(Discourse.system_user, second_reply).destroy
                             
                         end
@@ -178,7 +177,7 @@ after_initialize do
                 elsif raw[8, 4] == "help" && raw[13] != "@" then
                   text = "Hello @" + post.user.username + ". Here are some resources to help you on the forum:" + helpLinks
                   create_post(post.topic_id, text)
-                  log_command("sent public help", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                  log_command("sent public help", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                 elsif raw[8,4] == "help" && raw[13] == "@" then
                     if post.user.trust_level >= TrustLevel[3] then
                         for i in 1..raw.length
@@ -188,7 +187,7 @@ after_initialize do
                                 title = "Help with the CodeWizardsHQ Forum"
                                 raw = "Hello @" + helpUser.username + ", @" + helper.username + " thinks you might need some help gettting around the forum. Here are some resources that you can read if you would like to know more about this forum:" + helpLinks +  "<br> <br>This message was sent using the [@system help command](https://forum.codewizardshq.com/t/system-add-on-plugin-documentation/8742)." 
                                 send_pm(title, raw, helpUser.username)
-                                log_command(`was sent private help by #{helper.username}`, `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                                log_command(`was sent private help by #{helper.username}`, "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                                 PostDestroyer.new(Discourse.system_user, post).destroy
                                 break
                             end
@@ -202,7 +201,7 @@ after_initialize do
                         text = "Hello @#{post.user.username}. Based on your last reply, it seems like the issue you needed help with has been solved. If you would like to close the topic, meaning there will be no more replies allowed, follow the instructions below. If your problem is not solved or you would like to leave the topic open, you may ignore this or submit feedback [here](https://forum.codewizardshq.com/t/bot-commands-and-pr-suggestions-for-system/9254).<br><br>To close your topic, navigate back to your topic (the easiest way to do this is to press the back button to take you the last page you were on). Then make a new reply, and in it type `@system close problem solved`. If you need to, you can replace `problem solved` with a diferent reason for closing. When you post your reply, the topic should close."
                         title = "Do you want to close your get help topic?"
                         send_pm(title, text, post.user.username)
-                        log_command("was sent topic closing instructions", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                        log_command("was sent topic closing instructions", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                         break
                     end
                     
@@ -216,11 +215,11 @@ after_initialize do
             second_reply = Post.find_by(topic_id: post.topic_id, post_number: 3)
             if !first_reply.nil? && first_reply.user.username == "system" then
                 PostDestroyer.new(Discourse.system_user, first_reply).destroy
-                log_command("had an automated message deleted (issue was fixed)", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                log_command("had an automated message deleted (issue was fixed)", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
             end
             if !second_reply.nil? && second_reply.user.username == "system" then
                 PostDestroyer.new(Discourse.system_user, second_reply).destroy
-                log_command("had an automated message deleted (issue was fixed)", `https://forum.codewizardshq.com/t/#{post.topic_id}`, post.user.username)
+                log_command("had an automated message deleted (issue was fixed)", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
             end
         end
         
