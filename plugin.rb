@@ -46,7 +46,7 @@ def get_link(id, username, hash)
     if id == 11 || id == 57 then
         return "`https://scratch.mit.edu/projects/00000000`" 
     else
-        if !hash[id].nil? && hash[id] = "m11_intro_prog_py_00" then
+        if !hash[id].nil? && hash[id] == "m11_intro_prog_py_00" then
             return "`https://" + username + ".codewizardshq.com/" + hash[id] + "/project` or `https://" + username + ".codewizardshq.com/" + hash[id] + "/project-folder`"
         elsif !hash[id].nil? then
             return "`https://" + username + ".codewizardshq.com/" + hash[id] + "/project`"
