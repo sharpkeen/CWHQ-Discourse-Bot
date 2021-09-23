@@ -14,7 +14,7 @@ courses = {
     31 => "e22_wd1_00",
     58 => "e23",
     46 => "e24",
-    13 => "intro_prog_py_00",
+    13 => "m11_intro_prog_py_00",
     14 => "m12_html_css_00",
     15 => "m13_js_00",
     16 => "M14_vr_00",
@@ -46,7 +46,9 @@ def get_link(id, username, hash)
     if id == 11 || id == 57 then
         return "`https://scratch.mit.edu/projects/00000000`" 
     else
-        if !hash[id].nil? then
+        if !hash[id].nil? && hash[id] = "m11_intro_prog_py_00" then
+            return "`https://" + username + ".codewizardshq.com/" + hash[id] + "/project` or `https://" + username + ".codewizardshq.com/" + hash[id] + "/project-folder`"
+        elsif !hash[id].nil? then
             return "`https://" + username + ".codewizardshq.com/" + hash[id] + "/project`"
         end
     end
