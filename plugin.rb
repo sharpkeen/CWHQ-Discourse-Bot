@@ -196,18 +196,18 @@ after_initialize do
                         end
                     end   
                 end
-            elsif post.user.username == oPost.user.username && !courses[post.topic.category_id].nil? then
-                phrases = ["homework help", "on my own", "thanks", "thank you", "figured it out", "it works", "it's working", "myself", "solved", "fixed", "tysm"]
-                phrases.each do |i|
-                    if raw.downcase.include?(i) then
-                        text = "Hello @#{post.user.username}. Based on your last reply, it seems like the issue you needed help with has been solved. If you would like to close the topic, meaning there will be no more replies allowed, follow the instructions below. If your problem is not solved or you would like to leave the topic open, you may ignore this or submit feedback [here](https://forum.codewizardshq.com/t/bot-commands-and-pr-suggestions-for-system/9254).<br><br>To close your topic, navigate back to your topic (the easiest way to do this is to press the back button to take you the last page you were on). Then make a new reply, and in it type `@system close problem solved`. If you need to, you can replace `problem solved` with a diferent reason for closing. When you post your reply, the topic should close."
-                        title = "Do you want to close your get help topic?"
-                        send_pm(title, text, post.user.username)
-                        log_command("was sent topic closing instructions", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
-                        break
-                    end
+#             elsif post.user.username == oPost.user.username && !courses[post.topic.category_id].nil? then
+#                 phrases = ["homework help", "on my own", "thanks", "thank you", "figured it out", "it works", "it's working", "myself", "solved", "fixed", "tysm"]
+#                 phrases.each do |i|
+#                     if raw.downcase.include?(i) then
+#                         text = "Hello @#{post.user.username}. Based on your last reply, it seems like the issue you needed help with has been solved. If you would like to close the topic, meaning there will be no more replies allowed, follow the instructions below. If your problem is not solved or you would like to leave the topic open, you may ignore this or submit feedback [here](https://forum.codewizardshq.com/t/bot-commands-and-pr-suggestions-for-system/9254).<br><br>To close your topic, navigate back to your topic (the easiest way to do this is to press the back button to take you the last page you were on). Then make a new reply, and in it type `@system close problem solved`. If you need to, you can replace `problem solved` with a diferent reason for closing. When you post your reply, the topic should close."
+#                         title = "Do you want to close your get help topic?"
+#                         send_pm(title, text, post.user.username)
+#                         log_command("was sent topic closing instructions", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
+#                         break
+#                     end
                     
-                end
+#                 end
             end
         end
     end
