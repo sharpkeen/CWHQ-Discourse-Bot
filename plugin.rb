@@ -8,8 +8,8 @@ require 'date'
 
 courses = Hash.new
 courses = {
-    11 => "e11_scratch_00",
-    57 => "e12_scratch_00",
+    11 => "https://scratch.mit.edu/projects/00000000/",
+    57 => "https://scratch.mit.edu/projects/00000000/",
     85 => "e13_text_prog_00",
     36 => "e13_real_prog_00",
     37 => "e14_minecraft_00",
@@ -23,7 +23,7 @@ courses = {
     14 => "m13_html_css_00",
     15 => "m13_js_00",
     16 => "M14_vr_00",
-    89 => "m15_web_dev_00",
+    89 => "m21_resp_web_dev_00",
     17 => "m21_ui_00",
     18 => "m22_database_00",
     47 => "m23_api_00",
@@ -39,8 +39,7 @@ courses = {
     50 => "h31_mvc_00",
     51 => "h32_orm_00",
     75 => "h33_devops_00",
-    76 => "h34_capstone_00",
-    11 => false
+    76 => "h34_capstone_00"
 }
 
 def get_link(id, username, hash)
