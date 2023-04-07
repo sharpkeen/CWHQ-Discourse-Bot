@@ -107,7 +107,8 @@ after_initialize do
         newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
         topicRaw = newTopic.raw
         lookFor = topic.user.username + ".codewizardshq.com"
-        link = get_link(topic.category_id, topic.user.username, courses)
+        #link = get_link(topic.category_id, topic.user.username, courses)
+        link = false
         if link then
             if topicRaw.downcase.include?(lookFor + "/edit") then
                 text = "Hello @" + topic.user.username + ", it appears that the link that you provided goes to the editor, and not your project. Please open your project and use the link from that tab. This may look like " + link + "."
