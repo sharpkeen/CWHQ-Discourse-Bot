@@ -161,7 +161,7 @@ after_initialize do
                         PostDestroyer.new(Discourse.system_user, post).destroy
                     end
                 elsif raw[8, 11] == "code_sample" then
-                    text = "Hello @" + post.user.username + ", please refer to this topic for posting your code sample. Thanks. https://forum.codewizardshq.com/t/how-to-post-code-samples/21423/1"
+                    text = "Hello @" + post.user.username + ", please refer to this topic for posting your code sample. https://forum.codewizardshq.com/t/how-to-post-code-samples/21423/1"
                     create_post(post.topic_id, text)
                     log_command("received code_sample message", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                 elsif raw[8,12] == "project_link" then
