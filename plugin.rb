@@ -161,13 +161,13 @@ after_initialize do
                         PostDestroyer.new(Discourse.system_user, post).destroy
                     end
                 elsif raw[8, 11] == "code_sample" then
-                    text = "Hello" + topic.user.username + ", please refer to this topic for posting your code sample. https://forum.codewizardshq.com/t/how-to-post-code-samples/21423/1"
-                    create_post(topic.id, text)
-                    log_command("received code_sample message", "https://forum.codewizardshq.com/t/#{topic.topic_id}", topic.user.username)
+                    text = "Hello @" + post.user.username + ", please refer to this topic for posting your code sample. https://forum.codewizardshq.com/t/how-to-post-code-samples/21423/1"
+                    create_post(post.topic_id, text)
+                    log_command("received code_sample message", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                 elsif raw[8,12] == "project_link" then
-                    text = "Hello" + topic.user.username + ", please refer to this topic for posting the link to your project. https://forum.codewizardshq.com/t/how-to-post-project-links/21426/1"
-                    create_post(topic.id, text)
-                    log_command("received project_link message", "https://forum.codewizardshq.com/t/#{topic.topic_id}", topic.user.username)
+                    text = "Hello @" + post.user.username + ", please refer to this topic for posting the link to your project. https://forum.codewizardshq.com/t/how-to-post-project-links/21426/1"
+                    create_post(post.topic_id, text)
+                    log_command("received project_link message", "https://forum.codewizardshq.com/t/#{post.topic_id}", post.user.username)
                 elsif raw[8, 6] == "remove" then
                     if (!post.user.primary_group_id.nil? && group.name == "Helpers") then
                         first_reply = Post.find_by(topic_id: post.topic_id, post_number: 2)
