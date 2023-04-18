@@ -166,7 +166,7 @@ after_initialize do
                     log_command("received code_sample message", "https://forum.codewizardshq.com/t/#{post.topic_id}", topic.user.username)
                     PostDestroyer.new(Discourse.system_user, post).destroy
                 elsif raw[8,12] == "project_link" then
-                    text = "Hello @" + topic.user.username + ", please refer to this topic for posting the link to your project. https://forum.codewizardshq.com/t/how-to-post-project-links/21426/1"
+                    text = "Hello @" + topic.user.username + ", please refer to this topic for posting the link to your project. Thanks. https://forum.codewizardshq.com/t/how-to-post-project-links/21426/1"
                     create_post(post.topic_id, text)
                     log_command("received project_link message", "https://forum.codewizardshq.com/t/#{post.topic_id}", topic.user.username)
                     PostDestroyer.new(Discourse.system_user, post).destroy
