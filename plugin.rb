@@ -107,7 +107,8 @@ after_initialize do
         newTopic = Post.find_by(topic_id: topic.id, post_number: 1)
         topicRaw = newTopic.raw
         lookFor = topic.user.username + ".codewizardshq.com"
-        link = get_link(topic.category_id, topic.user.username, courses)
+        #link = get_link(topic.category_id, topic.user.username, courses)
+        link = false
         if link then
             if topicRaw.downcase.include?(lookFor + "/edit") then
                 text = "Hello @" + topic.user.username + ", it appears that the link that you provided goes to the editor, and not your project. Please open your project and use the link from that tab. This may look like " + link + "."
@@ -172,6 +173,11 @@ after_initialize do
                     PostDestroyer.new(Discourse.system_user, post).destroy
                 elsif raw[8,13] == "code_sample_and_project_link" then
                     text = "Hello @" + oPost.user.username + ", It appears that your code sample has not been posted or formatted properly and a link to your project was not provided. Please refer to these topics as a guidance for posting your code sample in the correct format and adding a link to your project. https://forum.codewizardshq.com/t/how-to-post-code-samples/21423/1 and https://forum.codewizardshq.com/t/how-to-post-project-links/21426/1. Thanks."
+                    create_post(post.topic_id, text)
+                    log_command("received project_link message", "https://forum.codewizardshq.com/t/#{post.topic_id}", oPost.user.username)
+                    PostDestroyer.new(Discourse.system_user, post).destroy
+                elsif raw[8,8] == "add_both" then
+                    text = "Hello @" + oPost.user.username + ", please refer to these topics for posting the link to your project and pasting your code. https://forum.codewizardshq.com/t/how-to-post-code-samples/21423/1 and https://forum.codewizardshq.com/t/how-to-post-project-links/21426/1. Thanks."
                     create_post(post.topic_id, text)
                     log_command("received project_link and code_sample message", "https://forum.codewizardshq.com/t/#{post.topic_id}", oPost.user.username)
                     PostDestroyer.new(Discourse.system_user, post).destroy
